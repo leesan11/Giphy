@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css'>
+
+</head>
+
+<body>
+    <!-- Add new Buttons here-->
+    <div class="container-fluid">
+        <div id="newButtons" class="row" style="border:2px sold; height:20vh">
+        </div>
+    </div>
+
+    <main class="container-fluid">
+        <div class="row">
+                <!-- Add gifs here -->
+                <div class="col-10" style="height:80vh">
+                    <div id="gifScreen" class="row">
+
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="row">
+                    <input>
+                    <button id="submit">Submit</button>
+                    </div>
+                    <div class="row">
+                        <div style="border:2px solid" id="favorites">
+                            <h2>Favorites</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        var limit;
+        //take in input
+        $("#submit").on("click", function () {
+            $("<button>").addClass("ten").text($("input").val()).appendTo("#newButtons");
+            $("<button>").addClass("twenty").text("Additional "+$("input").val()).appendTo("#newButtons");
+            $("input").val("");
+        });
+        //search for gifs using event listener
+        $("#newButtons").on("click", ".ten", function () {
+            $("#gifScreen").empty();
+            limit=20;
+            var search = $(this).text();
+            var key = "q2rYDM1AJQBiB0WX1xXUN4BgAaCJrkOn";
+
+            var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=" + key + "&q=" + search + "&limit=10&offset=0&rating=G&lang=en"
+
+
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+
+            }).then(function (response) {
+                console.log(response);
+                for (i = 0; i < response.data.length; i++) {
+
+                    var newGifs = $("<div>").addClass("col-4-md").addClass("col-12-xs").addClass("col-4-lg").addClass("card");
+                    $("<img>").addClass("card-img-top").attr("src", response.data[i].images.fixed_height.url).attr("urlRun", response.data[i].images.fixed_height_small.url).attr("alt", "image").appendTo(newGifs);
+                    var cardBody=$("<div>").addClass("card-body");
+                    cardBody.appendTo(newGifs);
+                    newGifs.appendTo("#gifScreen");
+                    $("<h6>").text("Title: "+response.data[i].title).appendTo(cardBody);
+                    $("<p>").text("Rating: " + response.data[i].rating).appendTo(cardBody);
+                    $("<p>").text("Trending Date: " + response.data[i].trending_datetime).appendTo(cardBody);
+                    $("<a>").addClass("download").attr("download","something.gif").attr("href",response.data[i].images.fixed_height.url).text("Download").appendTo(cardBody);
+                    $("<button>").addClass("favorite").attr({"srcc":response.data[i].images.fixed_height.url, "urlRun":response.data[i].images.fixed_height_small.url,"title":response.data[i].title,"rating":response.data[i].rating,"date":response.data[i].trending_datetime}).text("Favorite").appendTo(cardBody);
+
+                    
+                }
+
+            });
+
+        });
+        //favorite button
+        $("#gifScreen").on("click",".favorite",function(){
+            var newGifs = $("<div>").addClass("col-4-md").addClass("col-12-xs").addClass("col-4-lg").addClass("card");
+            $("<img>").addClass("card-img-top").attr("src", $(this).attr("srcc")).attr("urlRun", $(this).attr("urlRun")).attr("alt", "image").appendTo(newGifs);
+            var cardBody=$("<div>").addClass("card-body");
+            cardBody.appendTo(newGifs);
+            newGifs.appendTo("#favorites");
+            $("<h6>").text("Title: "+$(this).attr("title")).appendTo(cardBody);
+            $("<p>").text("Rating: " + $(this).attr("rating")).appendTo(cardBody);
+            $("<p>").text("Trending Date: " + $(this).attr("date")).appendTo(cardBody);
+            $("<a>").addClass("download").attr("download","something.gif").attr("href",$(this).attr("srcc")).text("Download").appendTo(cardBody);
+            
+        });
+
+
+        //Additional 10 gifs
+        var initial="";
+        
+        $("#newButtons").on("click", ".twenty", function () {
+            if(initial!=$(this).text().substring(11)){
+                limit=20;
+            };
+
+            $("#gifScreen").empty();
+            var search = $(this).text().substring(11);
+            initial=search;
+            var key = "q2rYDM1AJQBiB0WX1xXUN4BgAaCJrkOn";
+
+            var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=" + key + "&q=" + search + "&limit="+limit+"&offset=0&rating=G&lang=en"
+
+
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+
+            }).then(function (response) {
+                console.log(response);
+                for (i = 0; i < response.data.length; i++) {
+
+                    var newGifs = $("<div>").addClass("col-4-md").addClass("col-12-xs").addClass("col-4-lg").addClass("card");
+                    $("<img>").addClass("card-img-top").attr("src", response.data[i].images.fixed_height.url).attr("urlRun", response.data[i].images.fixed_height_small.url).attr("alt", "image").appendTo(newGifs);
+                    var cardBody=$("<div>").addClass("card-body");
+                    cardBody.appendTo(newGifs);
+                    newGifs.appendTo("#gifScreen");
+                    $("<p>").text("Rating: " + response.data[i].rating).appendTo(cardBody);
+                    $("<p>").text("Rating: " + response.data[i].rating).appendTo(cardBody);
+                    $("<p>").text("Trending Date: " + response.data[i].trending_datetime).appendTo(cardBody);
+                    
+                }
+
+            });
+            limit+=10;
+        });
+
+        //stop gif play on click
+        $("#gifScreen").on("click", "img", function () {
+            if ($(this).attr("src")[$(this).attr("src").length - 6] == "_") {
+                $(this).attr("src", $(this).attr("urlRun"));
+            }
+            else {
+                $(this).attr("src", $(this).attr("urlRun").substring(0, $(this).attr("urlRun").length - 4) + "_s.gif");
+            };
+        });
+
+
+
+    </script>
+
+</body>
+
+</html>
